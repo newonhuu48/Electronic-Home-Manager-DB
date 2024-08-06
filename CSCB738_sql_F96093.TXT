@@ -1,0 +1,136 @@
+1. Общ брой обслужвани апартаменти:
+
+SELECT COUNT(*)
+FROM house_manager.apartment
+
+
+
+
+2. Всички жилищни сгради от определен квартал:
+
+SELECT *
+FROM house_manager.building
+WHERE district = "Lyulin";
+
+3. Компании с доход над средния:
+
+SELECT *
+FROM house_manager.company
+WHERE income > (
+	SELECT AVG(income)
+	FROM house_manager.company
+)
+
+
+
+
+4. Компании съдържащи ‘ Hub ’
+
+SELECT *
+FROM house_manager.company
+WHERE name LIKE ('% Hub %')
+
+
+
+
+5. Всички апартаменти с площ над средната:
+
+SELECT *
+FROM house_manager.apartment
+WHERE area > (
+	SELECT AVG(area)
+   	FROM house_manager.apartment
+)
+
+
+
+
+6. Брой на апартаменти по квартали(атрибутът квартал е достъпен в таблицата Сграда, а не в Апартамент!)
+
+SELECT 
+	house_manager.building.district, 
+	COUNT(*) AS Apartments
+FROM house_manager.building
+JOIN house_manager.apartment 
+
+ON 
+
+	house_manager.building.address = 
+		house_manager.apartment.building_address
+        
+GROUP BY house_manager.building.district
+
+
+
+
+7. Собственик на апартамент, адрес на сграда, площ на апартамент
+
+SELECT 
+	house_manager.owner.name,
+    house_manager.owner.building_address,
+    house_manager.apartment.area
+FROM house_manager.owner
+
+INNER JOIN house_manager.apartment ON
+	house_manager.owner.id_apartment =
+		house_manager.apartment.id
+
+
+
+
+8. Втората най-висока заплата на служител(изключвайки първата)
+
+SELECT 
+    MAX(house_manager.employee.salary)
+	FROM house_manager.employee
+WHERE house_manager.employee.salary NOT IN 
+(
+	SELECT MAX(house_manager.employee.salary)
+	FROM house_manager.employee
+)
+
+
+
+
+9. Фирма, служител, заплата
+
+SELECT 
+	house_manager.company.name,
+	house_manager.employee.name,
+    house_manager.employee.salary
+FROM house_manager.company
+
+INNER JOIN house_manager.employee
+
+ON house_manager.company.id = 
+	house_manager.employee.company_id
+
+
+
+
+10. Разходи на всяка компания за заплати на служители
+SELECT 
+	house_manager.company.name,
+    SUM(house_manager.employee.salary)
+FROM house_manager.company
+
+INNER JOIN house_manager.employee
+	ON house_manager.company.id = 
+		house_manager.employee.company_id
+        
+GROUP BY house_manager.company.name
+
+
+
+
+11. Сума от фактурите за всяка дата преди ‚2026-05-14‘
+SELECT 
+    house_manager.invoice.date,
+    SUM(house_manager.invoice.amount) AS Sum
+FROM house_manager.invoice
+WHERE house_manager.invoice.date < '2026-05-14'
+
+GROUP BY 
+		house_manager.invoice.date
+	
+ORDER BY Sum
